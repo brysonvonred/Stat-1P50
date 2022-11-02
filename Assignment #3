@@ -1,0 +1,224 @@
+import pandas as pd
+import numpy as np
+import statsmodels.api as sm
+
+crime = pd.read_csv('crime.csv').reset_index() #load crime file
+crime = crime[['ViolentCrimesPerPop', 'PctUnemployed', 'PctBSorMore']].reset_index() #columns we care about
+
+#Notes: regression line = Y= mX+b
+"""
+violence = crime[['ViolentCrimesPerPop']].reset_index()
+employment = crime [['PctUnemployed']].reset_index()
+education = crime[['PctBSorMore']].reset_index()
+employANDedu = crime[['PctUnemployed','PctBSorMore']].reset_index()"""
+
+"""model = sm.OLS(violence, employANDedu).fit() #this would error for size of indices, went with another method
+predict = model.predict(violence)
+model.summary()"""
+
+violence = crime[['ViolentCrimesPerPop']]
+employment = crime [['PctUnemployed']]
+education = crime[['PctBSorMore']]
+employANDedu = crime[['PctUnemployed','PctBSorMore']]
+
+modelone = sm.OLS(violence, employment).fit() #checks against employment
+predict = modelone.predict(violence)
+modelone.summary() #gives a summer table which generates underneath
+
+
+import pandas as pd
+import numpy as np
+import statsmodels.api as sm
+
+crime = pd.read_csv('crime.csv').reset_index()
+crime = crime[['ViolentCrimesPerPop', 'PctUnemployed', 'PctBSorMore']].reset_index()
+
+#Notes: regression line = Y= mX+b
+"""
+violence = crime[['ViolentCrimesPerPop']].reset_index()
+employment = crime [['PctUnemployed']].reset_index()
+education = crime[['PctBSorMore']].reset_index()
+employANDedu = crime[['PctUnemployed','PctBSorMore']].reset_index()"""
+
+"""model = sm.OLS(violence, employANDedu).fit()
+predict = model.predict(violence)
+model.summary()"""
+
+violence = crime[['ViolentCrimesPerPop']]
+employment = crime [['PctUnemployed']]
+education = crime[['PctBSorMore']]
+employANDedu = crime[['PctUnemployed','PctBSorMore']]
+
+modeltwo = sm.OLS(violence, education).fit() #exact same table but the input parameter is now education
+predict = modeltwo.predict(violence)
+modeltwo.summary()
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+
+regressdata = {}
+crime = pd.read_csv('crime.csv')
+
+keys = crime.keys()
+violence = crime[['ViolentCrimesPerPop']]
+ 
+
+
+def linearRegress(yVal, keys):    
+    
+    
+    for i in range(len(keys)-1): #range = length -1 to exclude the violence per pop column
+        x = int(i)
+        name = keys[x]
+        xVal = crime[[name]]      
+       
+        model = LinearRegression(fit_intercept = False)
+        Lreg = model.fit(yVal, xVal.values)
+        coeff = Lreg.coef_
+        intercept = Lreg.intercept_
+        prediction = Lreg.predict(xVal.values)
+        
+        score = Lreg.score(xVal.values, yVal)
+         
+        
+
+        plt.scatter(xVal, yVal)
+        plt.xlabel(name)
+        plt.ylabel('Violent Crime %')
+        #plt.plot(prediction, color = 'red')
+        plt.show()
+        regressdata[name] = score
+    
+linearRegress(violence, keys)
+
+print(regressdata)
+
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LogisticRegression
+healthdict = {}
+
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None) # needed to check where the ckd grouping ends
+
+
+healthdata = pd.read_csv('kidney_disease.csv').reset_index()
+ckd = healthdata[['ckd']]
+ckdnp = np.array(ckd).ravel() #flatten the column to 1d array for processing
+healthdata = healthdata.drop(['index','ckd'], axis = 1) #gives a clean list with index removed.
+#healthdata = healthdata.head(n=100) #takes 100 samples of each column
+healthKeys =list[[]]
+
+healthKeys = healthdata.keys()
+    
+def logregress(x, y, name):
+    #key = healthKeys[x]
+    #column = healthdata[[key]]
+    #columnnp = np.array(column)
+    model = LogisticRegression(penalty = 'none', fit_intercept = False, max_iter =150, multi_class = 'multinomial')
+    model = model.fit(columnnp, ckdnp)
+    prediction = model.predict(columnnp)
+    predictprob = model.predict_proba(columnnp)
+    score = model.score(columnnp, ckdnp)
+    print('name: ' + str(key) + ', score: ' + str(score))
+    healthdict[key] = score
+    print(column.head())
+    print(healthdict)
+
+for i in range(len(healthKeys)):
+    x = i
+    key = healthKeys[x]
+    column = healthdata[[key]]
+    columnnp = np.array(column)
+    logregress(columnnp, ckd, key)
+
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_rows', None) # needed to check where the ckd grouping ends
+
+
+healthdata = pd.read_csv('kidney_disease.csv').reset_index()
+ckdpd = healthdata[['ckd']]
+ckd = np.array(ckdpd).ravel()
+healthdata = healthdata.drop(['index','ckd'], axis = 1) #gives a clean list with index removed.
+#healthdata = healthdata.head(n=100) #takes 100 samples of each column
+healthKeys = list[[]]
+healthKeys = healthdata.keys()
+
+x_train, x_test, y_train, y_test= train_test_split(healthdata, ckd, test_size=0.30, random_state=None)
+model = LogisticRegression(penalty = 'none', fit_intercept = False, max_iter =200, multi_class = 'multinomial')\
+.fit(x_train, y_train)
+prediction = model.predict(x_test)
+print(classification_report(y_test, prediction))
+
+import pandas as pd
+
+dict_of_frequencies = {}
+
+
+def get_frequency(input_string):
+
+    list_of_words = input_string.split(' ')
+    
+
+    for word in list_of_words:
+
+        if word in dict_of_frequencies.keys():
+            dict_of_frequencies[word] = dict_of_frequencies[word] + 1
+        else:
+            dict_of_frequencies[word] = 1
+    return(dict_of_frequencies)
+
+#######################################################################################
+
+def get_ratio(input_string):
+    
+    list_of_words = input_string.split(' ')
+    
+    for word in list_of_words:
+
+        if word in dict_of_frequencies.keys():
+            dict_of_frequencies[word] = dict_of_frequencies[word] + 1
+            
+        else:
+            dict_of_frequencies[word] = 1
+            
+    return(dict_of_frequencies)
+
+
+#######################################################################################
+
+
+def wordcounter(input_string, input_data, max_val, key_vals):
+    words = input_string.split()
+    c = len(words)
+    print(data)
+    print('The most used word: ' + key_vals[0] + ', is used ' + str(val) + ' times. That gives us a ratio of ' + \
+           str(val) + '/' + str(c))
+
+    
+    
+#######################################################################################
+
+input_string = str(input('Type a string of words: '))
+dict_of_frequencies = get_ratio(input_string)
+
+data = pd.DataFrame(dict_of_frequencies, index = ['Word Count'])
+data = data.sort_index(axis=1, ascending=False, level=int, kind = 'stable')
+
+series = pd.Series.max(data)
+val = series.max()
+keys = data.keys()
+
+c = wordcounter(input_string, data, val, keys)
